@@ -20,20 +20,20 @@ contract MiniProject1155 is ERC1155Supply, Ownable {
     mapping(address => bool) whiteListMembers;
 
 
-    //Base de datos externa el ("") pero como es un ejemplo ponemos la del standard
+    // External database ("") but as an example, we use the standard one
     constructor () ERC1155 ("https://token-cdn-domain/") Ownable(msg.sender) {}
 
 
     //Functions
 
-    //Funcion para pasar de string a id
+    // Function to convert a string to an ID
     function uri (uint _id) public view virtual override returns (string memory) {
         require(exists(_id), "Non existent token");
         return string(abi.encodePacked(super.uri(_id), Strings.toString(_id), ".json"));
     }
 
 
-    //Funcion para comprobar que los miembros de la whitelist estan y darles un precio antes de que salga el token
+    // Function to check if whitelist members are included and give them a discounted price before the token launch
     function whiteListMint (uint id) public payable {
         require(whiteListStatus, "White list is closed");
         require(whiteListMembers[msg.sender], "Your are not allowed");
@@ -49,14 +49,14 @@ contract MiniProject1155 is ERC1155Supply, Ownable {
         
     }
 
-    //Creamos esta funcion para optimizar codigo de las otras funciones
+    // Function to optimize code for other functions
     function mint(uint _id, uint _price) internal {
         require(msg.value >= price, "Not enough ethers");
         require(totalSupply(_id)+ 1 <= maxSupply, "Minted out");
 
         _mint(msg.sender, _id, 1, "");
 
-         //Si sobra se devuelve
+         // If there is excess, it is refunded
         uint remainder = msg.value - _price;
         payable(msg.sender).transfer(remainder);
     }
@@ -75,13 +75,13 @@ contract MiniProject1155 is ERC1155Supply, Ownable {
 
         _mintBatch(msg.sender, ids, amounts, "");
 
-        //Si sobra se devuelve
+        // If there is excess, it is refunded
         uint remainder = msg.value - price;
         payable(msg.sender).transfer(remainder);
     }
 
     function addMembers (address [] memory _members) external onlyOwner {
-        //Damos permisos a los miembros de la whitelist
+        // Grant permissions to whitelist members
         for (uint i = 0; i<_members.length; i++){
             whiteListMembers[_members[i]] = true;
         }
